@@ -107,20 +107,24 @@ class DiscreteDistribution(dict):
         0.0
         """
 
+
+        #  CONSOLE TESTING
+        # import inference
+        # test = {'a':2.0,'b':3.0,'c':.7,'d':.9}
+        # dd = inference.DiscreteDistribution(test)
+
+
         # SAMPLE CODE #########
         total = self.total()
-        newDict = dict(list(sorted(self)))  # must sort dict for <>= comparison later to work
+        # newDict = dict(sorted(self.items(), key=lambda x: x[1])) # sort that i am 99.9% sure is not needed
         samp = random.random()
-
         ceil = 0.0
-        floor = 0.0
 
-        for key in newDict.keys():
-            floor += ceil  # updates floor probability to compare to the random sample
-            ceil += (newDict.get(key)) / total  # normalizes each value and adds it to the floor to get the ceiling prob
+        for key in self.keys():
+            floor = ceil  # updates floor probability to compare to the random sample
+            ceil += (self.get(key)) / total  # normalizes each value and adds it to old ceil to get the new ceil prob.
             if floor <= samp < ceil:  # see class notes 14, slide Sampling
-                return newDict.get(key)
-
+                return key
 
         ####################################
 
