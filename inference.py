@@ -107,18 +107,15 @@ class DiscreteDistribution(dict):
         0.0
         """
 
-
         #  CONSOLE TESTING
         # import inference
         # test = {'a':2.0,'b':3.0,'c':.7,'d':.9}
         # dd = inference.DiscreteDistribution(test)
 
-
         # SAMPLE CODE ######################
         # must pass this function a dict of doubles or floats, no ints or total() won't work
 
         total = self.total()
-        # newDict = dict(sorted(self.items(), key=lambda x: x[1])) # sort that i am 99.9% sure is not needed
         samp = random.random()
         ceil = 0.0
 
@@ -200,10 +197,16 @@ class InferenceModule:
         """
 
         #################################################
-        #  Take into account the Jail
 
         trueDist = manhattanDistance(pacmanPosition, ghostPosition)
-        return busters.getObservationProbability(noisyDistance, trueDist)
+        if ghostPosition == jailPosition:
+            if noisyDistance is None:
+                return 1.0
+            return 0.0
+        try:
+            return busters.getObservationProbability(noisyDistance, trueDist)
+        except TypeError:
+            return 0.0
 
         #################################################
 
