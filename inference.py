@@ -78,13 +78,12 @@ class DiscreteDistribution(dict):
 
         # NORMALIZER CODE #####################
 
-        divider = self.total()
-        if self or divider:  # if the dict is nonEmpty or if its total is not 0
+        divisor = self.total()
+        if self or divisor:  # if the dict is nonEmpty or if its total is not 0
             for key in self.keys():
-                self[key] /= divider  # divide all values by the total
+                self[key] /= divisor  # divide all values by the total
 
         #######################################
-
 
     def sample(self):
         """
@@ -107,14 +106,30 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        # add your code here, and delete the next line -
-        raiseNotDefined()
+
+        # SAMPLE CODE #########
+        total = self.total()
+        newDict = dict(list(sorted(self)))  # must sort dict for <>= comparison later to work
+        samp = random.random()
+
+        ceil = 0.0
+        floor = 0.0
+
+        for key in newDict.keys():
+            floor += ceil  # updates floor probability to compare to the random sample
+            ceil += (newDict.get(key)) / total  # normalizes each value and adds it to the floor to get the ceiling prob
+            if floor <= samp < ceil:  # see class notes 14, slide Sampling
+                return newDict.get(key)
+
+
+        ####################################
 
 
 class InferenceModule:
     """
     An inference module tracks a belief distribution over a ghost's location.
     """
+
     ############################################
     # Useful methods for all inference modules #
     ############################################
@@ -144,7 +159,7 @@ class InferenceModule:
             dist[jail] = 1.0
             return dist
         pacmanSuccessorStates = game.Actions.getLegalNeighbors(pacmanPosition, \
-                gameState.getWalls())  # Positions Pacman can move to
+                                                               gameState.getWalls())  # Positions Pacman can move to
         if ghostPosition in pacmanSuccessorStates:  # Ghost could get caught
             mult = 1.0 / float(len(pacmanSuccessorStates))
             dist[jail] = mult
@@ -260,6 +275,7 @@ class ExactInference(InferenceModule):
     The exact dynamic inference module should use forward algorithm updates to
     compute the exact belief function at each time step.
     """
+
     def initializeUniformly(self, gameState):
         """
         Begin with a uniform distribution over legal ghost positions (i.e., not
@@ -308,6 +324,7 @@ class ParticleFilter(InferenceModule):
     """
     A particle filter for approximately tracking a single ghost.
     """
+
     def __init__(self, ghostAgent, numParticles=300):
         InferenceModule.__init__(self, ghostAgent)
         self.setNumParticles(numParticles)
@@ -367,6 +384,7 @@ class JointParticleFilter(ParticleFilter):
     JointParticleFilter tracks a joint distribution over tuples of all ghost
     positions.
     """
+
     def __init__(self, numParticles=600):
         self.setNumParticles(numParticles)
 
@@ -449,6 +467,7 @@ class MarginalInference(InferenceModule):
     A wrapper around the JointInference module that returns marginal beliefs
     about ghosts.
     """
+
     def initializeUniformly(self, gameState):
         """
         Set the belief state to an initial, prior value.
