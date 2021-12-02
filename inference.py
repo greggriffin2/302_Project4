@@ -114,7 +114,9 @@ class DiscreteDistribution(dict):
         # dd = inference.DiscreteDistribution(test)
 
 
-        # SAMPLE CODE #########
+        # SAMPLE CODE ######################
+        # must pass this function a dict of doubles or floats, no ints or total() won't work
+
         total = self.total()
         # newDict = dict(sorted(self.items(), key=lambda x: x[1])) # sort that i am 99.9% sure is not needed
         samp = random.random()
@@ -196,8 +198,14 @@ class InferenceModule:
         """
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
-        # add your code here, and delete the next line -
-        raise NotImplementedError
+
+        #################################################
+        #  Take into account the Jail
+
+        trueDist = manhattanDistance(pacmanPosition, ghostPosition)
+        return busters.getObservationProbability(noisyDistance, trueDist)
+
+        #################################################
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
