@@ -1,21 +1,8 @@
-# inference.py
-# ------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
-
 import itertools
 import random
 import busters
 import game
+import util
 
 from util import manhattanDistance, raiseNotDefined
 
@@ -81,7 +68,8 @@ class DiscreteDistribution(dict):
         divisor = self.total()
         if self or divisor:  # if the dict is nonEmpty or if its total is not 0
             for key in self.keys():
-                self[key] /= divisor  # divide all values by the total
+                if divisor != 0:#BUGFIX: removes divide by 0 error
+                    self[key] /= divisor  # divide all values by the total
 
         #######################################
 
@@ -316,9 +304,20 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known (gameState.getPacmanPosition()).
         """
-        # add your code here, and remove the next line -
-        raiseNotDefined()
+        noisy = observation
+        pacPos = gameState.getPacmanPosition()
+        jalPos = self.getJailPosition()
+        tempBeliefs = self.beliefs
+        #jail case
+        # if noisy == None: #jail edge case
+        #     # #reset all possible
+        #     self.beliefs[jalPos] = 1.0
 
+        for pos in self.allPositions:
+            #current iteration times probability at that pos
+            tempBeliefs[pos] = tempBeliefs[pos] * self.getObservationProb(noisy,pacPos, pos, jalPos)
+        self.beliefs = tempBeliefs
+        self.beliefs.normalize()
     def elapseTime(self, gameState):
         """
         Predict beliefs in response to a time step passing from the current
